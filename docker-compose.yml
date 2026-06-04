@@ -1,0 +1,40 @@
+# docker-compose.yml
+# Levanta MySQL 8.0 para desarrollo local
+# Comando para iniciar: docker-compose up -d
+# Comando para detener: docker-compose down
+# Para ver logs:        docker-compose logs -f mysql
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: fhce_mysql
+    # Variables de entorno que MySQL usa al inicializarse
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234      # contraseña del usuario root
+      MYSQL_DATABASE: sistema_cursos_fhce # crea esta BD automáticamente
+      MYSQL_USER: fhce_user              # usuario de la aplicación (no root)
+      MYSQL_PASSWORD: fhce_pass          # contraseña del usuario
+    ports:
+      # puerto_host:puerto_contenedor
+      # Accedes desde tu máquina en localhost:3307
+      # (3307 en vez de 3306 para no conflictuar con MySQL local si lo tienes)
+      - "3307:3306"
+    volumes:
+      # Persistencia: los datos sobreviven a docker-compose down
+      - mysql_data:/var/lib/mysql
+      # Script SQL se ejecuta automáticamente al crear el contenedor por primera vez
+      - ./src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      # utf8mb4 = soporte completo para Unicode (emojis, caracteres especiales)
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      # Spring Boot esperará a que MySQL esté listo antes de conectarse
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot1234"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_data:
+    # Volumen gestionado por Docker — persiste aunque el contenedor se elimine

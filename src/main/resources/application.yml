@@ -1,0 +1,83 @@
+# src/main/resources/application.yml
+
+spring:
+  # Perfil activo: dev usa mocks de UMSA y Libélula
+  # Para producción cambiar a: prod
+  profiles:
+    active: dev
+
+  # Nombre de la aplicación (aparece en logs y Swagger)
+  application:
+    name: sistema-cursos-fhce
+
+  # Configuración JPA/Hibernate
+  jpa:
+    # validate: Hibernate verifica que las entidades coincidan con la BD
+    # (no modifica la BD — ya tenemos el script SQL para eso)
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    # Muestra el SQL generado en consola (útil para debug en dev)
+    show-sql: true
+    properties:
+      hibernate:
+        # Formato bonito del SQL en los logs
+        format_sql: true
+        
+  # Jackson: serialización JSON
+  jackson:
+    default-property-inclusion: non_null
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+# Configuración del servidor
+server:
+  port: 8080
+  # Prefijo para todos los endpoints de la API
+  servlet:
+    context-path: /api
+
+# Variables de la aplicación (JWT, etc.)
+app:
+  eventos:
+    # Cada 5 minutos: segundo minuto hora dia-mes mes dia-semana
+    finalizacion-cron: "0 */5 * * * *"
+  jwt:
+    # IMPORTANTE: en producción esto va en variable de entorno, no aquí
+    # Debe tener al menos 256 bits (32 caracteres) para HS256
+    secret: "fhce-umsa-sistema-cursos-jwt-secret-key-2025-segura"
+    # Tiempo de expiración del token: 24 horas en milisegundos
+    expiration-ms: 86400000
+    # Tiempo de expiración del refresh token: 7 días en milisegundos
+    refresh-expiration-ms: 604800000
+  email:
+    from: "ramos.e.kasandra@gmail.com"
+    base-url: "http://localhost:5173"
+  certificados:
+    directorio: certificados  # relativo al directorio donde corre la app
+
+  plantillas:
+    max-size-mb: 5
+
+  archivos:
+    directorio: uploads
+    max-size-mb: 5
+
+  verificacion:
+    expiracion-horas: 24      # cuánto dura el código
+    longitud-codigo: 6        # dígitos del código (siempre 6 en tu BD)
+    max-intentos-reenvio: 3   # límite de reenvíos (para implementar después)
+
+  umsa:
+    email-domain: "umsa.bo"
+
+# Swagger UI — accesible en http://localhost:8080/api/swagger-ui.html
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    url: /api-docs
+  api-docs:
+    path: /api-docs
