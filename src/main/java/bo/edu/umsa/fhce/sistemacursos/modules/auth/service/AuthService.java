@@ -102,7 +102,7 @@ public class AuthService {
         }
 
         // 2. Buscar rol PARTICIPANTE antes de crear el usuario
-        Rol rolParticipante = rolRepository.findByNombre("PARTICIPANTE")
+        Rol rolParticipante = rolRepository.findByNombre(RolConstantes.PARTICIPANTE)
             .orElseThrow(() -> new RuntimeException("Rol PARTICIPANTE no encontrado en BD"));
 
         // 3. Crear y guardar el usuario
@@ -281,7 +281,7 @@ public class AuthService {
             if (usuarioRepository.existsByEmail(email)) {
                 throw new BusinessException("El email " + email + " ya está registrado", 409);
             }
-            Rol rolParticipante = rolRepository.findByNombre("PARTICIPANTE")
+            Rol rolParticipante = rolRepository.findByNombre(RolConstantes.PARTICIPANTE)
                 .orElseThrow(() -> new RuntimeException("Rol PARTICIPANTE no encontrado en BD"));
 
             Usuario nuevoUsuario = Usuario.builder()
@@ -315,8 +315,8 @@ public class AuthService {
         usuario.setEmailVerificado(true);
         usuario.setEstado(Usuario.EstadoUsuario.ACTIVO);
 
-        if (usuario.getRoles().stream().noneMatch(r -> "PARTICIPANTE".equals(r.getNombre()))) {
-            Rol rolParticipante = rolRepository.findByNombre("PARTICIPANTE")
+        if (usuario.getRoles().stream().noneMatch(r -> .equals(r.getNombre()))) {
+            Rol rolParticipante = rolRepository.findByNombre(RolConstantes.PARTICIPANTE)
                 .orElseThrow(() -> new RuntimeException("Rol PARTICIPANTE no encontrado en BD"));
             usuario.getRoles().add(rolParticipante);
         }
@@ -560,4 +560,8 @@ public class AuthService {
     private String construirEmailUmsa(String ru) {
         return ru + "@" + umsaEmailDomain;
     }
+    public class RolConstantes {
+        public static final String PARTICIPANTE = "PARTICIPANTE";
+    }
+
 }
